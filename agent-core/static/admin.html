@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Assistant — Admin</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a;
+    --border: #2e3250; --accent: #6366f1; --accent2: #818cf8;
+    --green: #22c55e; --red: #ef4444; --yellow: #f59e0b; --blue: #3b82f6;
+    --text: #e2e8f0; --muted: #64748b; --font: 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; }
+  a { color: var(--accent2); text-decoration: none; }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
+  .main { margin-left: 220px; padding: 32px; max-width: 1100px; }
+  .sidebar-logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+  .sidebar-logo h2 { font-size: 15px; font-weight: 600; color: var(--accent2); }
+  .sidebar-logo p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; color: var(--muted); transition: all .15s; font-size: 13px; border-left: 3px solid transparent; }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active { color: var(--accent2); background: var(--surface2); border-left-color: var(--accent); }
+  .nav-section { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--muted); padding: 16px 20px 6px; text-transform: uppercase; }
+
+  /* Cards */
+  .page { display: none; } .page.active { display: block; }
+  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .page-sub { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+
+  /* Grid */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* Stat tiles */
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .stat-val { font-size: 28px; font-weight: 700; margin: 4px 0 2px; }
+  .stat-sub { font-size: 11px; color: var(--muted); }
+
+  /* Forms */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+  input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 9px 12px; color: var(--text); font-size: 13px; font-family: var(--font); outline: none; transition: border-color .15s; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; font-family: monospace; }
+  select option { background: var(--surface); }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent2); }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: #14532d; color: var(--green); }
+  .badge-red { background: #450a0a; color: var(--red); }
+  .badge-yellow { background: #422006; color: var(--yellow); }
+  .badge-blue { background: #1e3a5f; color: var(--blue); }
+  .badge-muted { background: var(--surface2); color: var(--muted); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+  /* Integration / server rows */
+  .item-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .item-row:last-child { border-bottom: none; }
+  .item-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-weight: 600; font-size: 13px; }
+  .item-sub { font-size: 11px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+  /* Toggle switch */
+  .toggle { position: relative; width: 38px; height: 21px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 21px; cursor: pointer; transition: .2s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 15px; height: 15px; border-radius: 50%; background: #fff; left: 3px; top: 3px; transition: .2s; }
+  .toggle input:checked + .toggle-slider { background: var(--accent); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(17px); }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+  .modal-close { cursor: pointer; color: var(--muted); font-size: 20px; line-height: 1; padding: 4px; }
+  .modal-close:hover { color: var(--text); }
+
+  /* Alerts */
+  .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; display: none; }
+  .alert.show { display: block; }
+  .alert-success { background: #14532d; color: var(--green); border: 1px solid #166534; }
+  .alert-error { background: #450a0a; color: var(--red); border: 1px solid #991b1b; }
+  .alert-info { background: #1e3a5f; color: var(--blue); border: 1px solid #1d4ed8; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding: 0 12px 10px; }
+  td { padding: 10px 12px; border-top: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  tr:hover td { background: var(--surface2); }
+
+  /* Code */
+  code { font-family: monospace; background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 12px; color: var(--accent2); }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 768px) { .grid2, .grid3 { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } .sidebar { display: none; } .main { margin-left: 0; padding: 16px; } }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h2>Personal Assistant</h2>
+    <p>Admin Panel</p>
+  </div>
+  <div class="nav-section">Overview</div>
+  <div class="nav-item active" onclick="showPage('dashboard')">📊 Dashboard</div>
+  <div class="nav-section">AI</div>
+  <div class="nav-item" onclick="showPage('providers')">🤖 AI Providers</div>
+  <div class="nav-section">Integrations</div>
+  <div class="nav-item" onclick="showPage('homelab')">🖥️ Homelab</div>
+  <div class="nav-item" onclick="showPage('storage')">💾 Storage</div>
+  <div class="nav-item" onclick="showPage('media')">🎬 Media</div>
+  <div class="nav-item" onclick="showPage('comms')">📬 Comms</div>
+  <div class="nav-item" onclick="showPage('content')">🎥 Content / YouTube</div>
+  <div class="nav-section">Servers</div>
+  <div class="nav-item" onclick="showPage('ssh')">🔒 SSH Servers</div>
+  <div class="nav-section">Agent</div>
+  <div class="nav-item" onclick="showPage('memory')">🧠 Memory</div>
+  <div class="nav-item" onclick="showPage('sessions')">💬 Sessions</div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div id="alert-global" class="alert"></div>
+
+  <!-- Dashboard -->
+  <div id="page-dashboard" class="page active">
+    <div class="page-title">Dashboard</div>
+    <div class="page-sub">Overview of your personal assistant stack</div>
+    <div class="grid3" style="margin-bottom:20px" id="stats-grid">
+      <div class="stat"><div class="stat-label">AI Provider</div><div class="stat-val" id="stat-provider">—</div><div class="stat-sub">active</div></div>
+      <div class="stat"><div class="stat-label">Integrations</div><div class="stat-val" id="stat-integrations">—</div><div class="stat-sub">enabled</div></div>
+      <div class="stat"><div class="stat-label">SSH Servers</div><div class="stat-val" id="stat-ssh">—</div><div class="stat-sub">configured</div></div>
+      <div class="stat"><div class="stat-label">Memories</div><div class="stat-val" id="stat-memories">—</div><div class="stat-sub">stored facts</div></div>
+      <div class="stat"><div class="stat-label">Sessions</div><div class="stat-val" id="stat-sessions">—</div><div class="stat-sub">conversations</div></div>
+      <div class="stat"><div class="stat-label">Agent Status</div><div class="stat-val" style="font-size:16px;margin-top:8px" id="stat-health"><span class="badge badge-green"><span class="dot"></span> online</span></div><div class="stat-sub">core API</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Quick Test — Chat with your agent</div>
+      <div class="form-row full"><label>Message</label><input type="text" id="quick-msg" placeholder="Ask your assistant anything..." onkeydown="if(event.key==='Enter')quickChat()"></div>
+      <div class="form-row">
+        <div><label>Provider (optional override)</label><select id="quick-provider"><option value="">Default</option></select></div>
+        <div><label>Session ID</label><input type="text" id="quick-session" value="admin-test"></div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="quickChat()">Send</button>
+        <span id="quick-loading" style="display:none"><span class="spinner"></span> thinking...</span>
+      </div>
+      <div id="quick-response" style="margin-top:16px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;display:none;white-space:pre-wrap;font-size:13px;line-height:1.6"></div>
+    </div>
+  </div>
+
+  <!-- AI Providers -->
+  <div id="page-providers" class="page">
+    <div class="page-title">AI Providers</div>
+    <div class="page-sub">Configure and switch between AI backends. The active provider is used for all chat.</div>
+    <div id="providers-list"></div>
+    <div class="card" style="margin-top:8px">
+      <div class="card-title">Add / Edit Provider</div>
+      <div class="form-row">
+        <div><label>Name</label><input type="text" id="prov-name" placeholder="e.g. my-openai"></div>
+        <div><label>Type</label>
+          <select id="prov-type" onchange="provTypeChange()">
+            <option value="abacus">Abacus AI</option>
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="local">Local LLM (Ollama / compatible)</option>
+            <option value="custom">Custom (OpenAI-compatible API)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div><label>API Key</label><input type="password" id="prov-key" placeholder="sk-..."></div>
+        <div><label>Model</label><input type="text" id="prov-model" placeholder="e.g. gpt-4o"></div>
+      </div>
+      <div class="form-row full" id="prov-url-row">
+        <div><label>API URL <span style="color:var(--muted)">(for local / custom)</span></label><input type="text" id="prov-url" placeholder="http://ollama:11434/v1"></div>
+      </div>
+      <div class="form-row">
+        <div style="display:flex;align-items:center;gap:10px;padding-top:22px">
+          <label class="toggle"><input type="checkbox" id="prov-default"><span class="toggle-slider"></span></label>
+          <span style="font-size:13px">Set as default provider</span>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="saveProvider()">Save Provider</button>
+        <button class="btn btn-outline" onclick="clearProviderForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Integrations pages (homelab, storage, media, comms, content) -->
+  <div id="page-homelab" class="page"><div class="page-title">Homelab</div><div class="page-sub">Home Assistant, Proxmox, TrueNAS</div><div id="integrations-homelab"></div></div>
+  <div id="page-storage" class="page"><div class="page-title">Storage</div><div class="page-sub">Nextcloud file management</div><div id="integrations-storage"></div></div>
+  <div id="page-media" class="page"><div class="page-title">Media</div><div class="page-sub">Plex media server</div><div id="integrations-media"></div></div>
+  <div id="page-comms" class="page"><div class="page-title">Comms</div><div class="page-sub">Gmail and Telegram</div><div id="integrations-comms"></div></div>
+  <div id="page-content" class="page"><div class="page-title">Content / YouTube</div><div class="page-sub">YouTube, ElevenLabs, Stability AI, Runway ML</div><div id="integrations-content"></div></div>
+
+  <!-- SSH Servers -->
+  <div id="page-ssh" class="page">
+    <div class="page-title">SSH Servers</div>
+    <div class="page-sub">Linux servers your assistant can connect to and run commands on.</div>
+    <div class="card">
+      <div class="card-title">Servers <button class="btn btn-primary btn-sm" onclick="openSshModal()">+ Add Server</button></div>
+      <div id="ssh-list"><div style="color:var(--muted);font-size:13px">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- Memory -->
+  <div id="page-memory" class="page">
+    <div class="page-title">Memory</div>
+    <div class="page-sub">View and manage the agent's long-term memory.</div>
+    <div class="card">
+      <div class="card-title">Search Memories</div>
+      <div class="form-row">
+        <div><input type="text" id="mem-query" placeholder="Search for a topic or fact..." onkeydown="if(event.key==='Enter')searchMemory()"></div>
+        <div><select id="mem-category"><option value="">All categories</option><option>general</option><option>preference</option><option>person</option><option>task</option><option>fact</option></select></div>
+      </div>
+      <button class="btn btn-primary" onclick="searchMemory()">Search</button>
+      <div id="mem-results" style="margin-top:16px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Add Memory Manually</div>
+      <div class="form-row full"><label>Content</label><input type="text" id="mem-content" placeholder="e.g. User prefers dark mode"></div>
+      <div class="form-row three">
+        <div><label>Category</label><select id="mem-cat-new"><option>general</option><option>preference</option><option>person</option><option>task</option><option>fact</option></select></div>
+        <div><label>Importance (0–1)</label><input type="number" id="mem-importance" value="0.5" min="0" max="1" step="0.1"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addMemory()">Save to Memory</button>
+    </div>
+  </div>
+
+  <!-- Sessions -->
+  <div id="page-sessions" class="page">
+    <div class="page-title">Sessions</div>
+    <div class="page-sub">Recent conversation sessions.</div>
+    <div class="card">
+      <div id="sessions-list"></div>
+    </div>
+    <div class="card" id="session-detail-card" style="display:none">
+      <div class="card-title">Session: <code id="session-detail-id"></code></div>
+      <div id="session-detail-msgs"></div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- Integration Edit Modal -->
+<div class="modal-overlay" id="modal-integration">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-integ-title">Configure Integration</span>
+      <span class="modal-close" onclick="closeModal('modal-integration')">✕</span>
+    </div>
+    <div id="modal-integ-fields"></div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="saveIntegration()">Save</button>
+      <button class="btn btn-green btn-sm" onclick="testIntegration()">Test Connection</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-integration')">Cancel</button>
+    </div>
+    <div id="modal-integ-alert" class="alert" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- SSH Server Modal -->
+<div class="modal-overlay" id="modal-ssh">
+  <div class="modal">
+    <div class="modal-title">
+      <span>SSH Server</span>
+      <span class="modal-close" onclick="closeModal('modal-ssh')">✕</span>
+    </div>
+    <div class="form-row">
+      <div><label>Name</label><input type="text" id="ssh-name" placeholder="e.g. ubuntu-server"></div>
+      <div><label>Host / IP</label><input type="text" id="ssh-host" placeholder="192.168.1.100"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Port</label><input type="number" id="ssh-port" value="22"></div>
+      <div><label>Username</label><input type="text" id="ssh-user" placeholder="root"></div>
+    </div>
+    <div class="form-row full">
+      <div><label>Auth Type</label>
+        <select id="ssh-auth" onchange="toggleSshAuth()">
+          <option value="password">Password</option>
+          <option value="key">SSH Private Key</option>
+        </select>
+      </div>
+    </div>
+    <div id="ssh-pass-row" class="form-row full"><label>Password</label><input type="password" id="ssh-pass"></div>
+    <div id="ssh-key-row" class="form-row full" style="display:none"><label>Private Key (PEM)</label><textarea id="ssh-key" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"></textarea></div>
+    <input type="hidden" id="ssh-edit-id">
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="saveSshServer()">Save</button>
+      <button class="btn btn-green btn-sm" onclick="testSsh()">Test Connection</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-ssh')">Cancel</button>
+    </div>
+    <div id="modal-ssh-alert" class="alert" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<script>
+const API = '';
+const KEY = localStorage.getItem('agent_key') || promptKey();
+
+function promptKey() {
+  const k = prompt('Enter your AGENT_SECRET_KEY:');
+  if (k) localStorage.setItem('agent_key', k);
+  return k || '';
+}
+
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + path, opts);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'providers') loadProviders();
+  if (['homelab','storage','media','comms','content'].includes(name)) loadIntegrations(name);
+  if (name === 'ssh') loadSshServers();
+  if (name === 'memory') searchMemory();
+  if (name === 'sessions') loadSessions();
+}
+
+function showAlert(id, msg, type='success') {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'alert show alert-' + type;
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const [provs, integ, ssh, sessions] = await Promise.allSettled([
+      api('GET', '/providers'),
+      api('GET', '/admin/integrations'),
+      api('GET', '/admin/ssh-servers'),
+      api('GET', '/sessions'),
+    ]);
+    if (provs.value) {
+      const active = provs.value.providers.find(p => p.active);
+      document.getElementById('stat-provider').textContent = active ? active.name : '—';
+      const sel = document.getElementById('quick-provider');
+      sel.innerHTML = '<option value="">Default</option>' + provs.value.providers.filter(p => p.configured).map(p => `<option>${p.name}</option>`).join('');
+    }
+    if (integ.value) document.getElementById('stat-integrations').textContent = integ.value.filter(i => i.enabled).length;
+    if (ssh.value) document.getElementById('stat-ssh').textContent = ssh.value.length;
+    if (sessions.value) document.getElementById('stat-sessions').textContent = sessions.value.sessions.length;
+    const memR = await api('GET', '/memory/search?q=&limit=1').catch(() => null);
+  } catch(e) { console.error(e); }
+}
+
+async function quickChat() {
+  const msg = document.getElementById('quick-msg').value.trim();
+  if (!msg) return;
+  const prov = document.getElementById('quick-provider').value;
+  const sess = document.getElementById('quick-session').value || 'admin-test';
+  document.getElementById('quick-loading').style.display = 'inline-flex';
+  document.getElementById('quick-response').style.display = 'none';
+  try {
+    const r = await api('POST', '/chat', { message: msg, session_id: sess, provider: prov || null });
+    document.getElementById('quick-response').textContent = r.response;
+    document.getElementById('quick-response').style.display = 'block';
+  } catch(e) { showAlert('alert-global', 'Chat error: ' + e.message, 'error'); }
+  document.getElementById('quick-loading').style.display = 'none';
+}
+
+// ── Providers ─────────────────────────────────────────────────────────────────
+async function loadProviders() {
+  const { providers } = await api('GET', '/providers');
+  const dbProvs = await api('GET', '/admin/providers').catch(() => ({ providers: [] }));
+  const el = document.getElementById('providers-list');
+  el.innerHTML = providers.map(p => `
+    <div class="card">
+      <div class="item-row">
+        <div class="item-icon">${provIcon(p.name)}</div>
+        <div class="item-info">
+          <div class="item-name">${p.name}</div>
+          <div class="item-sub">${p.configured ? 'Configured' : 'Not configured — add API key below'}</div>
+        </div>
+        <div class="item-actions">
+          ${p.active ? '<span class="badge badge-green"><span class="dot"></span> Active</span>' : ''}
+          ${p.configured ? '<span class="badge badge-blue">Ready</span>' : '<span class="badge badge-muted">Unconfigured</span>'}
+          ${!p.active && p.configured ? `<button class="btn btn-outline btn-sm" onclick="setActiveProvider('${p.name}')">Set Active</button>` : ''}
+          <button class="btn btn-outline btn-sm" onclick="editProvider('${p.name}')">Edit</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function provIcon(n) { return {abacus:'🔮',openai:'🤖',anthropic:'🧠',local:'💻',custom:'⚙️'}[n] || '🤖'; }
+function provTypeChange() { document.getElementById('prov-url-row').style.display = ['local','custom'].includes(document.getElementById('prov-type').value) ? '' : 'none'; }
+function clearProviderForm() { ['prov-name','prov-key','prov-model','prov-url'].forEach(id => document.getElementById(id).value = ''); document.getElementById('prov-default').checked = false; }
+async function editProvider(name) { document.getElementById('prov-name').value = name; showPage('providers'); }
+async function setActiveProvider(name) {
+  await api('POST', '/admin/providers/set-active', { name });
+  showAlert('alert-global', `Active provider set to ${name}`);
+  loadProviders();
+}
+async function saveProvider() {
+  const body = { name: document.getElementById('prov-name').value, provider_type: document.getElementById('prov-type').value, api_key: document.getElementById('prov-key').value, model: document.getElementById('prov-model').value, api_url: document.getElementById('prov-url').value, is_default: document.getElementById('prov-default').checked };
+  await api('POST', '/admin/providers', body);
+  showAlert('alert-global', 'Provider saved. Restart agent-core to apply API key changes.');
+  loadProviders();
+}
+
+// ── Integrations ──────────────────────────────────────────────────────────────
+let currentInteg = null;
+const INTEG_FIELDS = {
+  home_assistant: [{k:'url',l:'URL',ph:'http://homeassistant.local:8123'},{k:'api_key',l:'Long-lived Access Token',ph:'eyJ...',type:'password'}],
+  proxmox: [{k:'url',l:'URL',ph:'https://proxmox.local:8006'},{k:'api_key',l:'API Token',ph:'user@pam!token=secret',type:'password'}],
+  truenas: [{k:'url',l:'URL',ph:'http://truenas.local'},{k:'api_key',l:'API Key',ph:'1-abc...',type:'password'}],
+  nextcloud: [{k:'url',l:'URL',ph:'https://cloud.local'},{k:'username',l:'Username',ph:'admin'},{k:'password',l:'Password',ph:'',type:'password'}],
+  plex: [{k:'url',l:'URL',ph:'http://plex.local:32400'},{k:'api_key',l:'Plex Token',ph:'xxx',type:'password'}],
+  gmail: [{k:'extra.note',l:'Note',ph:'Configure Gmail OAuth2 credentials in n8n, then enable here to activate the tool',type:'readonly'}],
+  telegram: [{k:'api_key',l:'Bot Token',ph:'123456:ABC...',type:'password'},{k:'extra.chat_id',l:'Your Chat ID (for notifications)',ph:'123456789'}],
+  youtube: [{k:'api_key',l:'YouTube Data API Key',ph:'AIza...',type:'password'},{k:'extra.channel_id',l:'Your Channel ID',ph:'UCxxxx'},{k:'extra.client_secret_json',l:'OAuth Client Secret JSON',type:'textarea'}],
+  elevenlabs: [{k:'api_key',l:'API Key',ph:'sk_...',type:'password'},{k:'extra.voice_id',l:'Default Voice ID',ph:'21m00Tcm4TlvDq8ikWAM'}],
+  stability: [{k:'api_key',l:'API Key',ph:'sk-...',type:'password'}],
+  runwayml: [{k:'api_key',l:'API Key',ph:'key_...',type:'password'}],
+};
+
+async function loadIntegrations(category) {
+  const all = await api('GET', '/admin/integrations');
+  const filtered = all.filter(i => i.category === category);
+  const el = document.getElementById('integrations-' + category);
+  if (!filtered.length) { el.innerHTML = '<div class="card" style="color:var(--muted);font-size:13px">No integrations in this category.</div>'; return; }
+  el.innerHTML = '<div class="card"><div id="integ-list-' + category + '"></div></div>';
+  renderIntegRows(category, filtered);
+}
+
+function renderIntegRows(category, items) {
+  const el = document.getElementById('integ-list-' + category);
+  el.innerHTML = items.map(i => `
+    <div class="item-row">
+      <div class="item-icon">${integIcon(i.name)}</div>
+      <div class="item-info">
+        <div class="item-name">${i.label}</div>
+        <div class="item-sub">${i.url || (i.enabled ? 'Configured' : 'Not configured')}</div>
+      </div>
+      <div class="item-actions">
+        ${i.last_test_ok === true ? '<span class="badge badge-green"><span class="dot"></span> OK</span>' : i.last_test_ok === false ? '<span class="badge badge-red"><span class="dot"></span> Failed</span>' : ''}
+        <label class="toggle"><input type="checkbox" ${i.enabled?'checked':''} onchange="toggleInteg('${i.name}',this.checked)"><span class="toggle-slider"></span></label>
+        <button class="btn btn-outline btn-sm" onclick="openIntegModal('${i.name}','${i.label}')">Configure</button>
+      </div>
+    </div>`).join('');
+}
+
+function integIcon(n) { return {home_assistant:'🏠',proxmox:'⚙️',truenas:'💾',nextcloud:'☁️',plex:'🎬',gmail:'📧',telegram:'✈️',youtube:'▶️',elevenlabs:'🎙️',stability:'🎨',runwayml:'🎞️'}[n]||'🔌'; }
+
+async function toggleInteg(name, enabled) {
+  await api('PATCH', '/admin/integrations/' + name, { enabled });
+  showAlert('alert-global', name + (enabled ? ' enabled' : ' disabled'));
+}
+
+function openIntegModal(name, label) {
+  currentInteg = name;
+  document.getElementById('modal-integ-title').textContent = 'Configure — ' + label;
+  const fields = INTEG_FIELDS[name] || [{k:'url',l:'URL',ph:'http://'},{k:'api_key',l:'API Key',ph:'',type:'password'}];
+  document.getElementById('modal-integ-fields').innerHTML = fields.map(f => {
+    if (f.type === 'readonly') return `<div class="form-row full"><label>${f.l}</label><div style="color:var(--muted);font-size:12px;padding:8px 0">${f.ph}</div></div>`;
+    if (f.type === 'textarea') return `<div class="form-row full"><label>${f.l}</label><textarea id="integ-${f.k.replace('.','_')}" placeholder="${f.ph}"></textarea></div>`;
+    return `<div class="form-row full"><label>${f.l}</label><input type="${f.type||'text'}" id="integ-${f.k.replace('.','_')}" placeholder="${f.ph}"></div>`;
+  }).join('');
+  api('GET', '/admin/integrations/' + name).then(d => {
+    fields.forEach(f => {
+      if (f.type === 'readonly') return;
+      const el = document.getElementById('integ-' + f.k.replace('.','_'));
+      if (!el) return;
+      if (f.k.startsWith('extra.')) { el.value = d.extra?.[f.k.split('.')[1]] || ''; }
+      else { el.value = d[f.k] || ''; }
+    });
+  }).catch(() => {});
+  document.getElementById('modal-integration').classList.add('open');
+}
+
+async function saveIntegration() {
+  const name = currentInteg;
+  const fields = INTEG_FIELDS[name] || [{k:'url'},{k:'api_key'}];
+  const body = { extra: {} };
+  fields.forEach(f => {
+    if (f.type === 'readonly') return;
+    const el = document.getElementById('integ-' + f.k.replace('.','_'));
+    if (!el) return;
+    if (f.k.startsWith('extra.')) body.extra[f.k.split('.')[1]] = el.value;
+    else body[f.k] = el.value;
+  });
+  await api('PATCH', '/admin/integrations/' + name, body);
+  showAlert('modal-integ-alert', 'Saved!', 'success');
+}
+
+async function testIntegration() {
+  const r = await api('POST', '/admin/integrations/' + currentInteg + '/test').catch(e => ({ ok: false, message: e.message }));
+  showAlert('modal-integ-alert', r.message, r.ok ? 'success' : 'error');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── SSH Servers ───────────────────────────────────────────────────────────────
+async function loadSshServers() {
+  const servers = await api('GET', '/admin/ssh-servers').catch(() => []);
+  const el = document.getElementById('ssh-list');
+  if (!servers.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px">No servers configured yet.</div>'; return; }
+  el.innerHTML = `<table><thead><tr><th>Name</th><th>Host</th><th>User</th><th>Auth</th><th>Status</th><th></th></tr></thead><tbody>${
+    servers.map(s => `<tr>
+      <td><b>${s.name}</b></td><td><code>${s.host}:${s.port}</code></td><td>${s.username}</td>
+      <td><span class="badge badge-blue">${s.auth_type}</span></td>
+      <td>${s.enabled ? '<span class="badge badge-green"><span class="dot"></span> enabled</span>' : '<span class="badge badge-muted">disabled</span>'}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="editSshServer('${s.id}')">Edit</button>
+          <button class="btn btn-outline btn-sm" onclick="deleteSshServer('${s.id}')">Delete</button></td>
+    </tr>`).join('')
+  }</tbody></table>`;
+}
+function openSshModal() { document.getElementById('modal-ssh').classList.add('open'); document.getElementById('ssh-edit-id').value = ''; }
+function toggleSshAuth() { const v = document.getElementById('ssh-auth').value; document.getElementById('ssh-pass-row').style.display = v==='password'?'':'none'; document.getElementById('ssh-key-row').style.display = v==='key'?'':'none'; }
+async function editSshServer(id) {
+  const s = await api('GET', '/admin/ssh-servers/' + id);
+  ['name','host','port','user','pass'].forEach(f => { const el = document.getElementById('ssh-'+f); if(el) el.value = s[f==='user'?'username':f==='pass'?'password':f]||''; });
+  document.getElementById('ssh-auth').value = s.auth_type || 'password';
+  document.getElementById('ssh-key').value = s.private_key || '';
+  document.getElementById('ssh-edit-id').value = id;
+  toggleSshAuth();
+  document.getElementById('modal-ssh').classList.add('open');
+}
+async function saveSshServer() {
+  const id = document.getElementById('ssh-edit-id').value;
+  const body = { name: document.getElementById('ssh-name').value, host: document.getElementById('ssh-host').value, port: parseInt(document.getElementById('ssh-port').value)||22, username: document.getElementById('ssh-user').value, auth_type: document.getElementById('ssh-auth').value, password: document.getElementById('ssh-pass').value, private_key: document.getElementById('ssh-key').value };
+  if (id) await api('PUT', '/admin/ssh-servers/' + id, body);
+  else await api('POST', '/admin/ssh-servers', body);
+  closeModal('modal-ssh'); loadSshServers();
+  showAlert('alert-global', 'SSH server saved');
+}
+async function testSsh() {
+  const id = document.getElementById('ssh-edit-id').value;
+  if (!id) { showAlert('modal-ssh-alert','Save the server first, then test','info'); return; }
+  const r = await api('POST', '/admin/ssh-servers/' + id + '/test').catch(e => ({ ok: false, message: e.message }));
+  showAlert('modal-ssh-alert', r.message, r.ok ? 'success' : 'error');
+}
+async function deleteSshServer(id) { if(!confirm('Delete this server?')) return; await api('DELETE', '/admin/ssh-servers/' + id); loadSshServers(); }
+
+// ── Memory ─────────────────────────────────────────────────────────────────────
+async function searchMemory() {
+  const q = document.getElementById('mem-query')?.value || '';
+  const cat = document.getElementById('mem-category')?.value || '';
+  const url = '/memory/search?q=' + encodeURIComponent(q || 'everything') + '&limit=20' + (cat ? '&category='+cat : '');
+  const r = await api('GET', url).catch(() => ({ results: [] }));
+  const el = document.getElementById('mem-results');
+  if (!r.results.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px">No results.</div>'; return; }
+  el.innerHTML = r.results.map(m => `<div style="padding:10px 0;border-bottom:1px solid var(--border)"><span class="badge badge-blue">${m.category}</span> <span class="badge badge-muted">${(m.similarity*100).toFixed(0)}%</span> <span style="margin-left:8px;font-size:13px">${m.content}</span><div style="font-size:11px;color:var(--muted);margin-top:3px">${new Date(m.created_at).toLocaleString()}</div></div>`).join('');
+}
+async function addMemory() {
+  await api('POST', '/memory', { content: document.getElementById('mem-content').value, category: document.getElementById('mem-cat-new').value, importance: parseFloat(document.getElementById('mem-importance').value) });
+  showAlert('alert-global', 'Memory saved');
+  document.getElementById('mem-content').value = '';
+}
+
+// ── Sessions ───────────────────────────────────────────────────────────────────
+async function loadSessions() {
+  const r = await api('GET', '/sessions').catch(() => ({ sessions: [] }));
+  const el = document.getElementById('sessions-list');
+  el.innerHTML = r.sessions.map(s => `<div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><code>${s}</code><button class="btn btn-outline btn-sm" onclick="loadSession('${s}')">View</button></div>`).join('');
+}
+async function loadSession(id) {
+  const r = await api('GET', '/sessions/' + id + '?limit=100');
+  document.getElementById('session-detail-id').textContent = id;
+  document.getElementById('session-detail-card').style.display = '';
+  document.getElementById('session-detail-msgs').innerHTML = r.messages.map(m => `<div style="padding:10px;margin:6px 0;border-radius:8px;background:${m.role==='user'?'var(--surface2)':'var(--bg)'}"><span class="badge ${m.role==='user'?'badge-blue':'badge-green'}">${m.role}</span> <span style="font-size:13px;margin-left:8px">${m.content||''}</span></div>`).join('');
+  document.getElementById('session-detail-card').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Init
+loadDashboard();
+</script>
+</body>
+</html>

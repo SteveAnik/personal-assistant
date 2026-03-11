@@ -1,0 +1,68 @@
+{
+  "name": "Daily Briefing",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{"field": "cronExpression", "expression": "0 8 * * *"}]
+        }
+      },
+      "name": "Every day 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-core:8000/chat",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "message", "value": "Give me a morning briefing. Check my unread emails, summarize anything important, and remind me of any tasks or memories that need attention today."},
+            {"name": "session_id", "value": "scheduled-daily-briefing"}
+          ]
+        },
+        "options": {}
+      },
+      "name": "Call Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3",
+          "name": "Agent Core API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=🌅 Morning Briefing\n\n{{ $json.response }}",
+        "additionalFields": {"parse_mode": "Markdown"}
+      },
+      "name": "Send via Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [720, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "2",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every day 8am": {
+      "main": [[{"node": "Call Agent", "type": "main", "index": 0}]]
+    },
+    "Call Agent": {
+      "main": [[{"node": "Send via Telegram", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false
+}
