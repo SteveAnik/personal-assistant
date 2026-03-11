@@ -72,7 +72,7 @@ services:
       PLAYWRIGHT_URL: http://playwright:3001
       N8N_WEBHOOK_BASE_URL: ${N8N_WEBHOOK_BASE_URL}
     ports:
-      - "8000:8000"
+      - "8100:8000"
     volumes:
       - agent-videos:/app/videos
     networks:
