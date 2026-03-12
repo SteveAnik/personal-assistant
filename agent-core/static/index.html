@@ -147,19 +147,42 @@
   #sidebar-footer {
     padding: 12px;
     border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
   }
-  #api-key-input {
-    width: 100%;
-    padding: 7px 10px;
+  #sidebar-footer a {
+    flex: 1;
+    padding: 8px 10px;
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 8px;
-    color: var(--text);
-    font-size: 11px;
-    outline: none;
+    color: var(--text-dim);
+    font-size: 12px;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s;
   }
-  #api-key-input:focus { border-color: var(--accent); }
-  #api-key-label { font-size: 10px; color: var(--text-dim); margin-bottom: 5px; display: block; }
+  #sidebar-footer a:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Settings Modal */
+  #settings-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 9000;
+    align-items: center; justify-content: center;
+  }
+  #settings-overlay.open { display: flex; }
+  #settings-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 28px; width: 400px; max-width: 95vw;
+  }
+  #settings-box h2 { font-size: 16px; font-weight: 600; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+  #settings-box label { font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  #settings-key-input { width: 100%; padding: 9px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; outline: none; margin-bottom: 14px; }
+  #settings-key-input:focus { border-color: var(--accent); }
+  #settings-save-btn { width: 100%; padding: 10px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  #settings-save-btn:hover { opacity: 0.85; }
+  .settings-close { cursor: pointer; color: var(--text-dim); font-size: 18px; line-height: 1; }
+  .settings-close:hover { color: var(--text); }
 
   /* ── Main ── */
   #main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
@@ -497,8 +520,7 @@
   </div>
 
   <div id="sidebar-footer">
-    <label id="api-key-label">🔑 API Secret Key</label>
-    <input id="api-key-input" type="password" placeholder="Enter your AGENT_SECRET_KEY" oninput="saveKey(this.value)">
+    <a href="/admin" target="_blank">⚙️ Admin</a>
   </div>
 </div>
 
@@ -510,7 +532,8 @@
     <select id="provider-select" onchange="setProvider(this.value)">
       <option value="">Default Provider</option>
     </select>
-    <a class="topbar-btn" href="/admin" target="_blank">⚙️ Admin</a>
+    <button class="topbar-btn" onclick="newChat()">✏️ New Chat</button>
+    <button class="topbar-btn" onclick="openSettings()">🔑 Settings</button>
   </div>
 
   <div id="quick-actions">
@@ -543,6 +566,16 @@
 
 <div id="toast"></div>
 
+<!-- Settings Modal -->
+<div id="settings-overlay">
+  <div id="settings-box">
+    <h2>Settings <span class="settings-close" onclick="closeSettings()">✕</span></h2>
+    <label>🔑 API Secret Key</label>
+    <input id="settings-key-input" type="password" placeholder="Enter your AGENT_SECRET_KEY">
+    <button id="settings-save-btn" onclick="saveSettingsKey()">Save</button>
+  </div>
+</div>
+
 <script>
 const API = '';
 let apiKey = localStorage.getItem('agent_key') || '';
@@ -553,12 +586,28 @@ let memorySearchTimeout = null;
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  if (apiKey) document.getElementById('api-key-input').value = apiKey;
+  if (!apiKey) openSettings();
   checkHealth();
   loadSessions();
   loadProviders();
   setInterval(checkHealth, 30000);
 });
+
+function openSettings() {
+  document.getElementById('settings-key-input').value = apiKey;
+  document.getElementById('settings-overlay').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
+}
+
+function saveSettingsKey() {
+  apiKey = document.getElementById('settings-key-input').value.trim();
+  localStorage.setItem('agent_key', apiKey);
+  closeSettings();
+  showToast('API key saved', 'success');
+}
 
 function saveKey(val) {
   apiKey = val.trim();

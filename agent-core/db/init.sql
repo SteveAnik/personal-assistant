@@ -81,6 +81,7 @@ INSERT INTO integrations (name, category, label, enabled) VALUES
   ('home_assistant', 'homelab',  'Home Assistant',  FALSE),
   ('nextcloud',      'storage',  'Nextcloud',       FALSE),
   ('plex',           'media',    'Plex',            FALSE),
+  ('jellyfin',       'media',    'Jellyfin',        FALSE),
   ('proxmox',        'homelab',  'Proxmox',         FALSE),
   ('truenas',        'homelab',  'TrueNAS',         FALSE),
   ('gmail',          'comms',    'Gmail (n8n)',      FALSE),
@@ -88,7 +89,9 @@ INSERT INTO integrations (name, category, label, enabled) VALUES
   ('youtube',        'content',  'YouTube',         FALSE),
   ('elevenlabs',     'content',  'ElevenLabs TTS',  FALSE),
   ('stability',      'content',  'Stability AI',    FALSE),
-  ('runwayml',       'content',  'Runway ML',       FALSE)
+  ('runwayml',       'content',  'Runway ML',       FALSE),
+  ('canva',          'content',  'Canva',           FALSE),
+  ('capcut',         'content',  'CapCut',          FALSE)
 ON CONFLICT (name) DO NOTHING;
 
 -- ── SSH Servers ───────────────────────────────────────────────────────────────

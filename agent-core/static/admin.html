@@ -219,9 +219,9 @@
   <!-- Integrations pages (homelab, storage, media, comms, content) -->
   <div id="page-homelab" class="page"><div class="page-title">Homelab</div><div class="page-sub">Home Assistant, Proxmox, TrueNAS</div><div id="integrations-homelab"></div></div>
   <div id="page-storage" class="page"><div class="page-title">Storage</div><div class="page-sub">Nextcloud file management</div><div id="integrations-storage"></div></div>
-  <div id="page-media" class="page"><div class="page-title">Media</div><div class="page-sub">Plex media server</div><div id="integrations-media"></div></div>
+  <div id="page-media" class="page"><div class="page-title">Media</div><div class="page-sub">Plex and Jellyfin media servers</div><div id="integrations-media"></div></div>
   <div id="page-comms" class="page"><div class="page-title">Comms</div><div class="page-sub">Gmail and Telegram</div><div id="integrations-comms"></div></div>
-  <div id="page-content" class="page"><div class="page-title">Content / YouTube</div><div class="page-sub">YouTube, ElevenLabs, Stability AI, Runway ML</div><div id="integrations-content"></div></div>
+  <div id="page-content" class="page"><div class="page-title">Content / YouTube</div><div class="page-sub">YouTube, ElevenLabs, Stability AI, Runway ML, Canva, CapCut</div><div id="integrations-content"></div></div>
 
   <!-- SSH Servers -->
   <div id="page-ssh" class="page">
@@ -418,6 +418,7 @@ async function loadProviders() {
           ${p.configured ? '<span class="badge badge-blue">Ready</span>' : '<span class="badge badge-muted">Unconfigured</span>'}
           ${!p.active && p.configured ? `<button class="btn btn-outline btn-sm" onclick="setActiveProvider('${p.name}')">Set Active</button>` : ''}
           <button class="btn btn-outline btn-sm" onclick="editProvider('${p.name}')">Edit</button>
+          <button class="btn btn-red btn-sm" onclick="deleteProvider('${p.name}')">Delete</button>
         </div>
       </div>
     </div>`).join('');
@@ -437,6 +438,12 @@ async function saveProvider() {
   showAlert('alert-global', 'Provider saved. Restart agent-core to apply API key changes.');
   loadProviders();
 }
+async function deleteProvider(name) {
+  if (!confirm(`Delete provider "${name}"?`)) return;
+  await api('DELETE', '/admin/providers/' + name);
+  showAlert('alert-global', `Provider "${name}" deleted.`);
+  loadProviders();
+}
 
 // ── Integrations ──────────────────────────────────────────────────────────────
 let currentInteg = null;
@@ -446,12 +453,15 @@ const INTEG_FIELDS = {
   truenas: [{k:'url',l:'URL',ph:'http://truenas.local'},{k:'api_key',l:'API Key',ph:'1-abc...',type:'password'}],
   nextcloud: [{k:'url',l:'URL',ph:'https://cloud.local'},{k:'username',l:'Username',ph:'admin'},{k:'password',l:'Password',ph:'',type:'password'}],
   plex: [{k:'url',l:'URL',ph:'http://plex.local:32400'},{k:'api_key',l:'Plex Token',ph:'xxx',type:'password'}],
+  jellyfin: [{k:'url',l:'URL',ph:'http://jellyfin.local:8096'},{k:'api_key',l:'API Key',ph:'abc123...',type:'password'},{k:'extra.user_id',l:'User ID',ph:'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'}],
   gmail: [{k:'extra.note',l:'Note',ph:'Configure Gmail OAuth2 credentials in n8n, then enable here to activate the tool',type:'readonly'}],
   telegram: [{k:'api_key',l:'Bot Token',ph:'123456:ABC...',type:'password'},{k:'extra.chat_id',l:'Your Chat ID (for notifications)',ph:'123456789'}],
   youtube: [{k:'api_key',l:'YouTube Data API Key',ph:'AIza...',type:'password'},{k:'extra.channel_id',l:'Your Channel ID',ph:'UCxxxx'},{k:'extra.client_secret_json',l:'OAuth Client Secret JSON',type:'textarea'}],
   elevenlabs: [{k:'api_key',l:'API Key',ph:'sk_...',type:'password'},{k:'extra.voice_id',l:'Default Voice ID',ph:'21m00Tcm4TlvDq8ikWAM'}],
   stability: [{k:'api_key',l:'API Key',ph:'sk-...',type:'password'}],
   runwayml: [{k:'api_key',l:'API Key',ph:'key_...',type:'password'}],
+  canva: [{k:'api_key',l:'API Key',ph:'OAuthToken...',type:'password'},{k:'extra.brand_kit_id',l:'Brand Kit ID (optional)',ph:'BAF...'}],
+  capcut: [{k:'extra.note',l:'Note',ph:'CapCut does not have a public API. Store your account email below for reference.',type:'readonly'},{k:'username',l:'Account Email',ph:'you@example.com'}],
 };
 
 async function loadIntegrations(category) {
@@ -480,7 +490,7 @@ function renderIntegRows(category, items) {
     </div>`).join('');
 }
 
-function integIcon(n) { return {home_assistant:'🏠',proxmox:'⚙️',truenas:'💾',nextcloud:'☁️',plex:'🎬',gmail:'📧',telegram:'✈️',youtube:'▶️',elevenlabs:'🎙️',stability:'🎨',runwayml:'🎞️'}[n]||'🔌'; }
+function integIcon(n) { return {home_assistant:'🏠',proxmox:'⚙️',truenas:'💾',nextcloud:'☁️',plex:'🎬',jellyfin:'🎥',gmail:'📧',telegram:'✈️',youtube:'▶️',elevenlabs:'🎙️',stability:'🎨',runwayml:'🎞️',canva:'🎨',capcut:'✂️'}[n]||'🔌'; }
 
 async function toggleInteg(name, enabled) {
   await api('PATCH', '/admin/integrations/' + name, { enabled });

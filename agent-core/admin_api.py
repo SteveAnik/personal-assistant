@@ -67,6 +67,13 @@ def make_router(database_url: str):
             await conn.execute("UPDATE provider_configs SET is_active=TRUE WHERE name=$1", body.name)
         return {"status": "ok", "active": body.name}
 
+    @r.delete("/providers/{name}")
+    async def delete_provider(name: str):
+        db = await pool()
+        async with db.acquire() as conn:
+            await conn.execute("DELETE FROM provider_configs WHERE name=$1", name)
+        return {"status": "deleted", "name": name}
+
     # ── Integrations ───────────────────────────────────────────────────────────
     @r.get("/integrations")
     async def list_integrations():
