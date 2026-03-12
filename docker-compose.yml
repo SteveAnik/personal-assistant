@@ -111,6 +111,7 @@ services:
       DB_POSTGRESDB_USER: ${POSTGRES_USER}
       DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_POSTGRESDB_SCHEMA: n8n
+      N8N_SECURE_COOKIE: "false"
     ports:
       - "5679:5678"
     volumes:
