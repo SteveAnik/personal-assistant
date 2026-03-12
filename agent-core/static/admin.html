@@ -6,42 +6,70 @@
 <title>Personal Assistant — Admin</title>
 <style>
   :root {
-    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a;
-    --border: #2e3250; --accent: #6366f1; --accent2: #818cf8;
-    --green: #22c55e; --red: #ef4444; --yellow: #f59e0b; --blue: #3b82f6;
-    --text: #e2e8f0; --muted: #64748b; --font: 'Inter', system-ui, sans-serif;
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1c1c1e;
+    --surface3: #2c2c2e;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.05);
+    --accent: #0a84ff;
+    --accent2: #409cff;
+    --accent-dim: rgba(10,132,255,0.12);
+    --green: #30d158;
+    --red: #ff453a;
+    --yellow: #ffd60a;
+    --blue: #0a84ff;
+    --text: #f5f5f7;
+    --muted: #98989d;
+    --muted2: #48484a;
+    --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; -webkit-font-smoothing: antialiased; }
   a { color: var(--accent2); text-decoration: none; }
 
   /* Layout */
   .layout { display: flex; min-height: 100vh; }
-  .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
-  .main { margin-left: 220px; padding: 32px; max-width: 1100px; }
-  .sidebar-logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
-  .sidebar-logo h2 { font-size: 15px; font-weight: 600; color: var(--accent2); }
-  .sidebar-logo p { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; color: var(--muted); transition: all .15s; font-size: 13px; border-left: 3px solid transparent; }
+  .sidebar {
+    width: 210px; background: rgba(16,16,16,0.94);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-right: 1px solid var(--border); padding: 20px 0;
+    position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto;
+  }
+  .main { margin-left: 210px; padding: 28px 32px; flex: 1; }
+  .sidebar-logo { padding: 0 16px 20px; border-bottom: 1px solid var(--border2); margin-bottom: 8px; display: flex; align-items: center; gap: 9px; }
+  .sidebar-logo .logo-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sidebar-logo .logo-icon svg { width: 15px; height: 15px; fill: #fff; }
+  .sidebar-logo h2 { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .sidebar-logo p { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 16px; cursor: pointer; color: var(--muted);
+    transition: all .15s; font-size: 13px; font-weight: 500;
+    border-radius: 8px; margin: 1px 8px;
+  }
+  .nav-item svg { width: 14px; height: 14px; flex-shrink: 0; }
   .nav-item:hover { color: var(--text); background: var(--surface2); }
-  .nav-item.active { color: var(--accent2); background: var(--surface2); border-left-color: var(--accent); }
-  .nav-section { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--muted); padding: 16px 20px 6px; text-transform: uppercase; }
+  .nav-item.active { color: var(--accent2); background: rgba(10,132,255,0.1); }
+  .nav-section { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--muted2); padding: 12px 16px 4px; text-transform: uppercase; }
 
   /* Cards */
   .page { display: none; } .page.active { display: block; }
-  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-  .page-sub { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-  .card-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+  .page-header { margin-bottom: 24px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+  .page-sub { color: var(--muted); margin-top: 4px; font-size: 13px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+  .card-title { font-size: 13px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; color: var(--text); }
+  .card-title span { color: var(--muted); font-weight: 400; font-size: 12px; }
 
   /* Grid */
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
 
   /* Stat tiles */
-  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
-  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-  .stat-val { font-size: 28px; font-weight: 700; margin: 4px 0 2px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+  .stat-val { font-size: 28px; font-weight: 700; margin: 4px 0 2px; letter-spacing: -0.02em; }
   .stat-sub { font-size: 11px; color: var(--muted); }
 
   /* Forms */
@@ -49,73 +77,106 @@
   .form-row.full { grid-template-columns: 1fr; }
   .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
   label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
-  input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 9px 12px; color: var(--text); font-size: 13px; font-family: var(--font); outline: none; transition: border-color .15s; }
-  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-  textarea { resize: vertical; min-height: 80px; font-family: monospace; }
-  select option { background: var(--surface); }
+  input, select, textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 9px; padding: 9px 12px; color: var(--text);
+    font-size: 13px; font-family: var(--font); outline: none;
+    transition: border-color .15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: rgba(10,132,255,0.45); }
+  textarea { resize: vertical; min-height: 80px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; }
+  select option { background: var(--surface2); }
 
   /* Buttons */
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 15px; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; font-family: var(--font); }
+  .btn svg { width: 13px; height: 13px; flex-shrink: 0; }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent2); }
   .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
-  .btn-outline:hover { border-color: var(--accent); color: var(--accent2); }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.18); background: var(--surface2); }
   .btn-green { background: var(--green); color: #fff; }
   .btn-red { background: var(--red); color: #fff; }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-sm { padding: 5px 11px; font-size: 12px; }
   .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 
   /* Badges */
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-green { background: #14532d; color: var(--green); }
-  .badge-red { background: #450a0a; color: var(--red); }
-  .badge-yellow { background: #422006; color: var(--yellow); }
-  .badge-blue { background: #1e3a5f; color: var(--blue); }
-  .badge-muted { background: var(--surface2); color: var(--muted); }
-  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: rgba(48,209,88,0.12); color: var(--green); }
+  .badge-red { background: rgba(255,69,58,0.12); color: var(--red); }
+  .badge-yellow { background: rgba(255,214,10,0.12); color: var(--yellow); }
+  .badge-blue { background: rgba(10,132,255,0.12); color: var(--accent2); }
+  .badge-muted { background: var(--surface3); color: var(--muted); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
 
-  /* Integration / server rows */
-  .item-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  /* Integration rows */
+  .item-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border2); }
   .item-row:last-child { border-bottom: none; }
-  .item-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .item-icon { width: 36px; height: 36px; border-radius: 9px; background: var(--surface2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .item-icon svg { width: 17px; height: 17px; color: var(--muted); }
   .item-info { flex: 1; min-width: 0; }
   .item-name { font-weight: 600; font-size: 13px; }
   .item-sub { font-size: 11px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .item-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .item-actions { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
 
   /* Toggle switch */
-  .toggle { position: relative; width: 38px; height: 21px; flex-shrink: 0; }
+  .toggle { position: relative; width: 40px; height: 23px; flex-shrink: 0; }
   .toggle input { opacity: 0; width: 0; height: 0; }
-  .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 21px; cursor: pointer; transition: .2s; }
-  .toggle-slider:before { content: ''; position: absolute; width: 15px; height: 15px; border-radius: 50%; background: #fff; left: 3px; top: 3px; transition: .2s; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--surface3); border-radius: 23px; cursor: pointer; transition: .2s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 17px; height: 17px; border-radius: 50%; background: #fff; left: 3px; top: 3px; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
   .toggle input:checked + .toggle-slider { background: var(--accent); }
   .toggle input:checked + .toggle-slider:before { transform: translateX(17px); }
 
   /* Modal */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 100; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
-  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-  .modal-close { cursor: pointer; color: var(--muted); font-size: 20px; line-height: 1; padding: 4px; }
-  .modal-close:hover { color: var(--text); }
+  .modal { background: #1c1c1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 26px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 32px 80px rgba(0,0,0,0.7); }
+  .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; letter-spacing: -0.01em; }
+  .modal-close { cursor: pointer; color: var(--muted); width: 26px; height: 26px; border-radius: 50%; background: var(--surface3); display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0; }
+  .modal-close:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+  .modal-close svg { width: 11px; height: 11px; }
 
   /* Alerts */
-  .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; display: none; }
+  .alert { padding: 10px 14px; border-radius: 9px; font-size: 13px; margin-bottom: 12px; display: none; }
   .alert.show { display: block; }
-  .alert-success { background: #14532d; color: var(--green); border: 1px solid #166534; }
-  .alert-error { background: #450a0a; color: var(--red); border: 1px solid #991b1b; }
-  .alert-info { background: #1e3a5f; color: var(--blue); border: 1px solid #1d4ed8; }
+  .alert-success { background: rgba(48,209,88,0.1); color: var(--green); border: 1px solid rgba(48,209,88,0.25); }
+  .alert-error { background: rgba(255,69,58,0.1); color: var(--red); border: 1px solid rgba(255,69,58,0.25); }
+  .alert-info { background: rgba(10,132,255,0.1); color: var(--accent2); border: 1px solid rgba(10,132,255,0.25); }
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; }
   th { text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding: 0 12px 10px; }
-  td { padding: 10px 12px; border-top: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  td { padding: 10px 12px; border-top: 1px solid var(--border2); font-size: 13px; vertical-align: middle; }
   tr:hover td { background: var(--surface2); }
 
   /* Code */
-  code { font-family: monospace; background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 12px; color: var(--accent2); }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 12px; color: var(--accent2); }
   .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.09); border-radius: 4px; }
+
+  /* Settings modal */
+  #settings-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.72); backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  #settings-modal-overlay.open { display: flex; }
+  #settings-modal {
+    background: #1c1c1e; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px; padding: 26px; width: 380px; max-width: 95vw;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+  }
+  #settings-modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; letter-spacing: -0.01em; }
+  #settings-modal .field-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: 5px; }
+  #settings-key-inp { width: 100%; padding: 10px 13px; background: var(--surface3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-size: 13px; outline: none; margin-bottom: 14px; font-family: 'SF Mono', 'Fira Code', monospace; transition: border-color .2s; }
+  #settings-key-inp:focus { border-color: rgba(10,132,255,0.45); }
+  #settings-save-btn { width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: 9px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: opacity .2s; }
+  #settings-save-btn:hover { opacity: 0.85; }
+
   @media (max-width: 768px) { .grid2, .grid3 { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } .sidebar { display: none; } .main { margin-left: 0; padding: 16px; } }
 </style>
 </head>
@@ -126,24 +187,69 @@
 <!-- Sidebar -->
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <h2>Personal Assistant</h2>
-    <p>Admin Panel</p>
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.38-1 1.73V7h3a3 3 0 0 1 3 3v1a2 2 0 0 1 2 2 2 2 0 0 1-2 2v1a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3v-1a2 2 0 0 1-2-2 2 2 0 0 1 2-2v-1a3 3 0 0 1 3-3h3V5.73c-.6-.35-1-.99-1-1.73a2 2 0 0 1 2-2zm-2 9a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+    </div>
+    <div>
+      <h2>Assistant</h2>
+      <p>Admin Panel</p>
+    </div>
   </div>
   <div class="nav-section">Overview</div>
-  <div class="nav-item active" onclick="showPage('dashboard')">📊 Dashboard</div>
+  <div class="nav-item active" onclick="showPage('dashboard', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Dashboard
+  </div>
   <div class="nav-section">AI</div>
-  <div class="nav-item" onclick="showPage('providers')">🤖 AI Providers</div>
+  <div class="nav-item" onclick="showPage('providers', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    AI Providers
+  </div>
   <div class="nav-section">Integrations</div>
-  <div class="nav-item" onclick="showPage('homelab')">🖥️ Homelab</div>
-  <div class="nav-item" onclick="showPage('storage')">💾 Storage</div>
-  <div class="nav-item" onclick="showPage('media')">🎬 Media</div>
-  <div class="nav-item" onclick="showPage('comms')">📬 Comms</div>
-  <div class="nav-item" onclick="showPage('content')">🎥 Content / YouTube</div>
+  <div class="nav-item" onclick="showPage('homelab', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="5" rx="2"/><rect x="2" y="11" width="20" height="5" rx="2"/><circle cx="7" cy="5.5" r="1" fill="currentColor" stroke="none"/><circle cx="7" cy="13.5" r="1" fill="currentColor" stroke="none"/></svg>
+    Homelab
+  </div>
+  <div class="nav-item" onclick="showPage('storage', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+    Storage
+  </div>
+  <div class="nav-item" onclick="showPage('media', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    Media
+  </div>
+  <div class="nav-item" onclick="showPage('comms', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+    Comms
+  </div>
+  <div class="nav-item" onclick="showPage('content', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+    Content / YouTube
+  </div>
   <div class="nav-section">Servers</div>
-  <div class="nav-item" onclick="showPage('ssh')">🔒 SSH Servers</div>
+  <div class="nav-item" onclick="showPage('ssh', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+    SSH Servers
+  </div>
   <div class="nav-section">Agent</div>
-  <div class="nav-item" onclick="showPage('memory')">🧠 Memory</div>
-  <div class="nav-item" onclick="showPage('sessions')">💬 Sessions</div>
+  <div class="nav-item" onclick="showPage('memory', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+    Memory
+  </div>
+  <div class="nav-item" onclick="showPage('sessions', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Sessions
+  </div>
+  <div style="padding: 16px 8px 0; margin-top: auto;">
+    <div class="nav-item" onclick="openSettings()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      API Key
+    </div>
+    <div class="nav-item" onclick="window.open('/', '_blank')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Open Chat
+    </div>
+  </div>
 </aside>
 
 <!-- Main -->
@@ -152,35 +258,42 @@
 
   <!-- Dashboard -->
   <div id="page-dashboard" class="page active">
-    <div class="page-title">Dashboard</div>
-    <div class="page-sub">Overview of your personal assistant stack</div>
-    <div class="grid3" style="margin-bottom:20px" id="stats-grid">
+    <div class="page-header">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Overview of your personal assistant stack</div>
+    </div>
+    <div class="grid3" style="margin-bottom:18px" id="stats-grid">
       <div class="stat"><div class="stat-label">AI Provider</div><div class="stat-val" id="stat-provider">—</div><div class="stat-sub">active</div></div>
       <div class="stat"><div class="stat-label">Integrations</div><div class="stat-val" id="stat-integrations">—</div><div class="stat-sub">enabled</div></div>
       <div class="stat"><div class="stat-label">SSH Servers</div><div class="stat-val" id="stat-ssh">—</div><div class="stat-sub">configured</div></div>
       <div class="stat"><div class="stat-label">Memories</div><div class="stat-val" id="stat-memories">—</div><div class="stat-sub">stored facts</div></div>
       <div class="stat"><div class="stat-label">Sessions</div><div class="stat-val" id="stat-sessions">—</div><div class="stat-sub">conversations</div></div>
-      <div class="stat"><div class="stat-label">Agent Status</div><div class="stat-val" style="font-size:16px;margin-top:8px" id="stat-health"><span class="badge badge-green"><span class="dot"></span> online</span></div><div class="stat-sub">core API</div></div>
+      <div class="stat"><div class="stat-label">Agent Status</div><div class="stat-val" style="font-size:15px;margin-top:10px" id="stat-health"><span class="badge badge-green"><span class="dot"></span> online</span></div><div class="stat-sub">core API</div></div>
     </div>
     <div class="card">
       <div class="card-title">Quick Test — Chat with your agent</div>
-      <div class="form-row full"><label>Message</label><input type="text" id="quick-msg" placeholder="Ask your assistant anything..." onkeydown="if(event.key==='Enter')quickChat()"></div>
+      <div class="form-row full"><label>Message</label><input type="text" id="quick-msg" placeholder="Ask your assistant anything…" onkeydown="if(event.key==='Enter')quickChat()"></div>
       <div class="form-row">
-        <div><label>Provider (optional override)</label><select id="quick-provider"><option value="">Default</option></select></div>
+        <div><label>Provider override</label><select id="quick-provider"><option value="">Default</option></select></div>
         <div><label>Session ID</label><input type="text" id="quick-session" value="admin-test"></div>
       </div>
       <div class="btn-group">
-        <button class="btn btn-primary" onclick="quickChat()">Send</button>
-        <span id="quick-loading" style="display:none"><span class="spinner"></span> thinking...</span>
+        <button class="btn btn-primary" onclick="quickChat()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send
+        </button>
+        <span id="quick-loading" style="display:none;align-items:center;gap:6px;font-size:13px;color:var(--muted)"><span class="spinner"></span> thinking…</span>
       </div>
-      <div id="quick-response" style="margin-top:16px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;display:none;white-space:pre-wrap;font-size:13px;line-height:1.6"></div>
+      <div id="quick-response" style="margin-top:16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;display:none;white-space:pre-wrap;font-size:13px;line-height:1.6"></div>
     </div>
   </div>
 
   <!-- AI Providers -->
   <div id="page-providers" class="page">
-    <div class="page-title">AI Providers</div>
-    <div class="page-sub">Configure and switch between AI backends. The active provider is used for all chat.</div>
+    <div class="page-header">
+      <div class="page-title">AI Providers</div>
+      <div class="page-sub">Configure and switch between AI backends</div>
+    </div>
     <div id="providers-list"></div>
     <div class="card" style="margin-top:8px">
       <div class="card-title">Add / Edit Provider</div>
@@ -197,16 +310,16 @@
         </div>
       </div>
       <div class="form-row">
-        <div><label>API Key</label><input type="password" id="prov-key" placeholder="sk-..."></div>
+        <div><label>API Key</label><input type="password" id="prov-key" placeholder="sk-…"></div>
         <div><label>Model</label><input type="text" id="prov-model" placeholder="e.g. gpt-4o"></div>
       </div>
       <div class="form-row full" id="prov-url-row">
-        <div><label>API URL <span style="color:var(--muted)">(for local / custom)</span></label><input type="text" id="prov-url" placeholder="http://ollama:11434/v1"></div>
+        <div><label>API URL <span style="color:var(--muted);font-weight:400">(local / custom)</span></label><input type="text" id="prov-url" placeholder="http://ollama:11434/v1"></div>
       </div>
       <div class="form-row">
         <div style="display:flex;align-items:center;gap:10px;padding-top:22px">
           <label class="toggle"><input type="checkbox" id="prov-default"><span class="toggle-slider"></span></label>
-          <span style="font-size:13px">Set as default provider</span>
+          <span style="font-size:13px;color:var(--muted)">Set as default provider</span>
         </div>
       </div>
       <div class="btn-group">
@@ -216,51 +329,68 @@
     </div>
   </div>
 
-  <!-- Integrations pages (homelab, storage, media, comms, content) -->
-  <div id="page-homelab" class="page"><div class="page-title">Homelab</div><div class="page-sub">Home Assistant, Proxmox, TrueNAS</div><div id="integrations-homelab"></div></div>
-  <div id="page-storage" class="page"><div class="page-title">Storage</div><div class="page-sub">Nextcloud file management</div><div id="integrations-storage"></div></div>
-  <div id="page-media" class="page"><div class="page-title">Media</div><div class="page-sub">Plex and Jellyfin media servers</div><div id="integrations-media"></div></div>
-  <div id="page-comms" class="page"><div class="page-title">Comms</div><div class="page-sub">Gmail and Telegram</div><div id="integrations-comms"></div></div>
-  <div id="page-content" class="page"><div class="page-title">Content / YouTube</div><div class="page-sub">YouTube, ElevenLabs, Stability AI, Runway ML, Canva, CapCut</div><div id="integrations-content"></div></div>
+  <!-- Integration pages -->
+  <div id="page-homelab" class="page">
+    <div class="page-header"><div class="page-title">Homelab</div><div class="page-sub">Home Assistant, Proxmox, TrueNAS</div></div>
+    <div id="integrations-homelab"></div>
+  </div>
+  <div id="page-storage" class="page">
+    <div class="page-header"><div class="page-title">Storage</div><div class="page-sub">Nextcloud file management</div></div>
+    <div id="integrations-storage"></div>
+  </div>
+  <div id="page-media" class="page">
+    <div class="page-header"><div class="page-title">Media</div><div class="page-sub">Plex and Jellyfin media servers</div></div>
+    <div id="integrations-media"></div>
+  </div>
+  <div id="page-comms" class="page">
+    <div class="page-header"><div class="page-title">Comms</div><div class="page-sub">Gmail and Telegram</div></div>
+    <div id="integrations-comms"></div>
+  </div>
+  <div id="page-content" class="page">
+    <div class="page-header"><div class="page-title">Content / YouTube</div><div class="page-sub">YouTube, ElevenLabs, Stability AI, Runway ML, Canva, CapCut</div></div>
+    <div id="integrations-content"></div>
+  </div>
 
   <!-- SSH Servers -->
   <div id="page-ssh" class="page">
-    <div class="page-title">SSH Servers</div>
-    <div class="page-sub">Linux servers your assistant can connect to and run commands on.</div>
+    <div class="page-header"><div class="page-title">SSH Servers</div><div class="page-sub">Linux servers your assistant can connect to and run commands on</div></div>
     <div class="card">
-      <div class="card-title">Servers <button class="btn btn-primary btn-sm" onclick="openSshModal()">+ Add Server</button></div>
-      <div id="ssh-list"><div style="color:var(--muted);font-size:13px">Loading...</div></div>
+      <div class="card-title">Servers
+        <button class="btn btn-primary btn-sm" onclick="openSshModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Add Server
+        </button>
+      </div>
+      <div id="ssh-list"><div style="color:var(--muted);font-size:13px">Loading…</div></div>
     </div>
   </div>
 
   <!-- Memory -->
   <div id="page-memory" class="page">
-    <div class="page-title">Memory</div>
-    <div class="page-sub">View and manage the agent's long-term memory.</div>
-    <div class="card">
-      <div class="card-title">Search Memories</div>
-      <div class="form-row">
-        <div><input type="text" id="mem-query" placeholder="Search for a topic or fact..." onkeydown="if(event.key==='Enter')searchMemory()"></div>
-        <div><select id="mem-category"><option value="">All categories</option><option>general</option><option>preference</option><option>person</option><option>task</option><option>fact</option></select></div>
+    <div class="page-header"><div class="page-title">Memory</div><div class="page-sub">View and manage the agent's long-term memory</div></div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Search Memories</div>
+        <div class="form-row full"><input type="text" id="mem-query" placeholder="Search for a topic or fact…" onkeydown="if(event.key==='Enter')searchMemory()"></div>
+        <div class="form-row full"><select id="mem-category"><option value="">All categories</option><option>general</option><option>preference</option><option>person</option><option>task</option><option>fact</option></select></div>
+        <button class="btn btn-primary" onclick="searchMemory()">Search</button>
+        <div id="mem-results" style="margin-top:14px"></div>
       </div>
-      <button class="btn btn-primary" onclick="searchMemory()">Search</button>
-      <div id="mem-results" style="margin-top:16px"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Add Memory Manually</div>
-      <div class="form-row full"><label>Content</label><input type="text" id="mem-content" placeholder="e.g. User prefers dark mode"></div>
-      <div class="form-row three">
-        <div><label>Category</label><select id="mem-cat-new"><option>general</option><option>preference</option><option>person</option><option>task</option><option>fact</option></select></div>
-        <div><label>Importance (0–1)</label><input type="number" id="mem-importance" value="0.5" min="0" max="1" step="0.1"></div>
+      <div class="card">
+        <div class="card-title">Add Memory</div>
+        <div class="form-row full"><label>Content</label><input type="text" id="mem-content" placeholder="e.g. User prefers dark mode"></div>
+        <div class="form-row">
+          <div><label>Category</label><select id="mem-cat-new"><option>general</option><option>preference</option><option>person</option><option>task</option><option>fact</option></select></div>
+          <div><label>Importance (0–1)</label><input type="number" id="mem-importance" value="0.5" min="0" max="1" step="0.1"></div>
+        </div>
+        <button class="btn btn-primary" onclick="addMemory()">Save to Memory</button>
       </div>
-      <button class="btn btn-primary" onclick="addMemory()">Save to Memory</button>
     </div>
   </div>
 
   <!-- Sessions -->
   <div id="page-sessions" class="page">
-    <div class="page-title">Sessions</div>
-    <div class="page-sub">Recent conversation sessions.</div>
+    <div class="page-header"><div class="page-title">Sessions</div><div class="page-sub">Recent conversation sessions</div></div>
     <div class="card">
       <div id="sessions-list"></div>
     </div>
@@ -278,12 +408,12 @@
   <div class="modal">
     <div class="modal-title">
       <span id="modal-integ-title">Configure Integration</span>
-      <span class="modal-close" onclick="closeModal('modal-integration')">✕</span>
+      <span class="modal-close" onclick="closeModal('modal-integration')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
     </div>
     <div id="modal-integ-fields"></div>
     <div class="btn-group">
       <button class="btn btn-primary" onclick="saveIntegration()">Save</button>
-      <button class="btn btn-green btn-sm" onclick="testIntegration()">Test Connection</button>
+      <button class="btn btn-outline btn-sm" onclick="testIntegration()">Test Connection</button>
       <button class="btn btn-outline" onclick="closeModal('modal-integration')">Cancel</button>
     </div>
     <div id="modal-integ-alert" class="alert" style="margin-top:12px"></div>
@@ -295,7 +425,7 @@
   <div class="modal">
     <div class="modal-title">
       <span>SSH Server</span>
-      <span class="modal-close" onclick="closeModal('modal-ssh')">✕</span>
+      <span class="modal-close" onclick="closeModal('modal-ssh')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
     </div>
     <div class="form-row">
       <div><label>Name</label><input type="text" id="ssh-name" placeholder="e.g. ubuntu-server"></div>
@@ -318,21 +448,37 @@
     <input type="hidden" id="ssh-edit-id">
     <div class="btn-group">
       <button class="btn btn-primary" onclick="saveSshServer()">Save</button>
-      <button class="btn btn-green btn-sm" onclick="testSsh()">Test Connection</button>
+      <button class="btn btn-outline btn-sm" onclick="testSsh()">Test Connection</button>
       <button class="btn btn-outline" onclick="closeModal('modal-ssh')">Cancel</button>
     </div>
     <div id="modal-ssh-alert" class="alert" style="margin-top:12px"></div>
   </div>
 </div>
 
+<!-- Settings / API Key Modal -->
+<div id="settings-modal-overlay">
+  <div id="settings-modal">
+    <h2>API Key <span class="modal-close" onclick="closeSettings()" style="cursor:pointer;width:26px;height:26px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:11px;height:11px"><path d="M18 6 6 18M6 6l12 12"/></svg></span></h2>
+    <span class="field-label">AGENT_SECRET_KEY</span>
+    <input id="settings-key-inp" type="password" placeholder="Enter your secret key">
+    <button id="settings-save-btn" onclick="saveSettingsKey()">Save</button>
+  </div>
+</div>
+
 <script>
 const API = '';
-const KEY = localStorage.getItem('agent_key') || promptKey();
+let KEY = localStorage.getItem('agent_key') || '';
 
-function promptKey() {
-  const k = prompt('Enter your AGENT_SECRET_KEY:');
-  if (k) localStorage.setItem('agent_key', k);
-  return k || '';
+if (!KEY) openSettings();
+
+function openSettings() { document.getElementById('settings-key-inp').value = KEY; document.getElementById('settings-modal-overlay').classList.add('open'); }
+function closeSettings() { document.getElementById('settings-modal-overlay').classList.remove('open'); }
+function saveSettingsKey() {
+  KEY = document.getElementById('settings-key-inp').value.trim();
+  localStorage.setItem('agent_key', KEY);
+  closeSettings();
+  showAlert('alert-global', 'API key saved', 'success');
+  loadDashboard();
 }
 
 async function api(method, path, body) {
@@ -343,11 +489,11 @@ async function api(method, path, body) {
   return r.json();
 }
 
-function showPage(name) {
+function showPage(name, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  event.target.classList.add('active');
+  if (el) el.classList.add('active');
   if (name === 'dashboard') loadDashboard();
   if (name === 'providers') loadProviders();
   if (['homelab','storage','media','comms','content'].includes(name)) loadIntegrations(name);
@@ -381,7 +527,6 @@ async function loadDashboard() {
     if (integ.value) document.getElementById('stat-integrations').textContent = integ.value.filter(i => i.enabled).length;
     if (ssh.value) document.getElementById('stat-ssh').textContent = ssh.value.length;
     if (sessions.value) document.getElementById('stat-sessions').textContent = sessions.value.sessions.length;
-    const memR = await api('GET', '/memory/search?q=&limit=1').catch(() => null);
   } catch(e) { console.error(e); }
 }
 
@@ -403,12 +548,11 @@ async function quickChat() {
 // ── Providers ─────────────────────────────────────────────────────────────────
 async function loadProviders() {
   const { providers } = await api('GET', '/providers');
-  const dbProvs = await api('GET', '/admin/providers').catch(() => ({ providers: [] }));
   const el = document.getElementById('providers-list');
   el.innerHTML = providers.map(p => `
     <div class="card">
       <div class="item-row">
-        <div class="item-icon">${provIcon(p.name)}</div>
+        <div class="item-icon">${provSvgIcon(p.name)}</div>
         <div class="item-info">
           <div class="item-name">${p.name}</div>
           <div class="item-sub">${p.configured ? 'Configured' : 'Not configured — add API key below'}</div>
@@ -423,7 +567,18 @@ async function loadProviders() {
       </div>
     </div>`).join('');
 }
-function provIcon(n) { return {abacus:'🔮',openai:'🤖',anthropic:'🧠',local:'💻',custom:'⚙️'}[n] || '🤖'; }
+
+function provSvgIcon(n) {
+  const icons = {
+    abacus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
+    openai: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>`,
+    anthropic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 19h20L12 2zm0 5v6m0 3v1"/></svg>`,
+    local: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`,
+    custom: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>`,
+  };
+  return `<div style="width:36px;height:36px;border-radius:9px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--muted)">${icons[n] || icons.custom}</div>`;
+}
+
 function provTypeChange() { document.getElementById('prov-url-row').style.display = ['local','custom'].includes(document.getElementById('prov-type').value) ? '' : 'none'; }
 function clearProviderForm() { ['prov-name','prov-key','prov-model','prov-url'].forEach(id => document.getElementById(id).value = ''); document.getElementById('prov-default').checked = false; }
 async function editProvider(name) { document.getElementById('prov-name').value = name; showPage('providers'); }
@@ -448,20 +603,20 @@ async function deleteProvider(name) {
 // ── Integrations ──────────────────────────────────────────────────────────────
 let currentInteg = null;
 const INTEG_FIELDS = {
-  home_assistant: [{k:'url',l:'URL',ph:'http://homeassistant.local:8123'},{k:'api_key',l:'Long-lived Access Token',ph:'eyJ...',type:'password'}],
+  home_assistant: [{k:'url',l:'URL',ph:'http://homeassistant.local:8123'},{k:'api_key',l:'Long-lived Access Token',ph:'eyJ…',type:'password'}],
   proxmox:        [{k:'url',l:'URL',ph:'https://proxmox.local:8006'},{k:'api_key',l:'API Token',ph:'user@pam!token=secret',type:'password'}],
-  truenas:        [{k:'url',l:'URL',ph:'http://truenas.local'},{k:'api_key',l:'API Key',ph:'1-abc...',type:'password'}],
+  truenas:        [{k:'url',l:'URL',ph:'http://truenas.local'},{k:'api_key',l:'API Key',ph:'1-abc…',type:'password'}],
   nextcloud:      [{k:'url',l:'URL',ph:'https://cloud.local'},{k:'username',l:'Username',ph:'admin'},{k:'password',l:'Password',ph:'',type:'password'}],
   plex:           [{k:'url',l:'URL',ph:'http://plex.local:32400'},{k:'api_key',l:'Plex Token',ph:'xxx',type:'password'}],
-  jellyfin:       [{k:'url',l:'URL',ph:'http://jellyfin.local:8096'},{k:'api_key',l:'API Key',ph:'abc123...',type:'password'},{k:'extra.user_id',l:'User ID',ph:'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'}],
+  jellyfin:       [{k:'url',l:'URL',ph:'http://jellyfin.local:8096'},{k:'api_key',l:'API Key',ph:'abc123…',type:'password'},{k:'extra.user_id',l:'User ID',ph:'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'}],
   gmail:          [{k:'extra.note',l:'Note',ph:'Configure Gmail OAuth2 credentials in n8n, then enable here to activate the tool',type:'readonly'}],
-  telegram:       [{k:'api_key',l:'Bot Token',ph:'123456:ABC...',type:'password'},{k:'extra.chat_id',l:'Your Chat ID (for notifications)',ph:'123456789'}],
-  youtube:        [{k:'api_key',l:'YouTube Data API Key',ph:'AIza...',type:'password'},{k:'extra.channel_id',l:'Your Channel ID',ph:'UCxxxx'},{k:'extra.client_secret_json',l:'OAuth Client Secret JSON',type:'textarea'}],
-  elevenlabs:     [{k:'api_key',l:'API Key',ph:'sk_...',type:'password'},{k:'extra.voice_id',l:'Default Voice ID',ph:'21m00Tcm4TlvDq8ikWAM'}],
-  stability:      [{k:'api_key',l:'API Key',ph:'sk-...',type:'password'}],
-  runwayml:       [{k:'api_key',l:'API Key',ph:'key_...',type:'password'}],
-  canva:          [{k:'api_key',l:'API Key',ph:'OAuthToken...',type:'password'},{k:'extra.brand_kit_id',l:'Brand Kit ID (optional)',ph:'BAF...'}],
-  capcut:         [{k:'extra.note',l:'Note',ph:'CapCut does not have a public API. Store your account email below for reference.',type:'readonly'},{k:'username',l:'Account Email',ph:'you@example.com'}],
+  telegram:       [{k:'api_key',l:'Bot Token',ph:'123456:ABC…',type:'password'},{k:'extra.chat_id',l:'Your Chat ID',ph:'123456789'}],
+  youtube:        [{k:'api_key',l:'YouTube Data API Key',ph:'AIza…',type:'password'},{k:'extra.channel_id',l:'Channel ID',ph:'UCxxxx'},{k:'extra.client_secret_json',l:'OAuth Client Secret JSON',type:'textarea'}],
+  elevenlabs:     [{k:'api_key',l:'API Key',ph:'sk_…',type:'password'},{k:'extra.voice_id',l:'Default Voice ID',ph:'21m00Tcm4TlvDq8ikWAM'}],
+  stability:      [{k:'api_key',l:'API Key',ph:'sk-…',type:'password'}],
+  runwayml:       [{k:'api_key',l:'API Key',ph:'key_…',type:'password'}],
+  canva:          [{k:'api_key',l:'API Key (OAuth Token)',ph:'OAuthToken…',type:'password'},{k:'extra.brand_kit_id',l:'Brand Kit ID (optional)',ph:'BAF…'}],
+  capcut:         [{k:'extra.note',l:'Note',ph:'CapCut has no public API. Store your account email below for reference.',type:'readonly'},{k:'username',l:'Account Email',ph:'you@example.com'}],
 };
 
 const INTEG_META = {
@@ -481,6 +636,23 @@ const INTEG_META = {
   capcut:         {category:'content', label:'CapCut'},
 };
 
+const INTEG_ICONS = {
+  home_assistant: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>`,
+  proxmox:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="5" rx="2"/><rect x="2" y="11" width="20" height="5" rx="2"/></svg>`,
+  truenas:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>`,
+  nextcloud:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+  plex:           `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+  jellyfin:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`,
+  gmail:          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>`,
+  telegram:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+  youtube:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`,
+  elevenlabs:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>`,
+  stability:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8l4 4-4 4"/></svg>`,
+  runwayml:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>`,
+  canva:          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>`,
+  capcut:         `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12M3 6v12M21 6v12"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>`,
+};
+
 async function loadIntegrations(category) {
   const el = document.getElementById('integrations-' + category);
   const dbRows = await api('GET', '/admin/integrations').catch(() => []);
@@ -488,10 +660,8 @@ async function loadIntegrations(category) {
   dbRows.forEach(r => dbMap[r.name] = r);
   const names = Object.keys(INTEG_META).filter(n => INTEG_META[n].category === category);
   const items = names.map(name => ({
-    name,
-    label: INTEG_META[name].label,
-    enabled: false,
-    url: '', last_test_ok: null,
+    name, label: INTEG_META[name].label,
+    enabled: false, url: '', last_test_ok: null,
     ...(dbMap[name] || {}),
   }));
   el.innerHTML = '<div class="card"><div id="integ-list-' + category + '"></div></div>';
@@ -502,7 +672,7 @@ function renderIntegRows(category, items) {
   const el = document.getElementById('integ-list-' + category);
   el.innerHTML = items.map(i => `
     <div class="item-row">
-      <div class="item-icon">${integIcon(i.name)}</div>
+      <div class="item-icon">${INTEG_ICONS[i.name] || INTEG_ICONS.proxmox}</div>
       <div class="item-info">
         <div class="item-name">${i.label}</div>
         <div class="item-sub">${i.url || (i.enabled ? 'Configured' : 'Not configured')}</div>
@@ -515,8 +685,6 @@ function renderIntegRows(category, items) {
     </div>`).join('');
 }
 
-function integIcon(n) { return {home_assistant:'🏠',proxmox:'⚙️',truenas:'💾',nextcloud:'☁️',plex:'🎬',jellyfin:'🎥',gmail:'📧',telegram:'✈️',youtube:'▶️',elevenlabs:'🎙️',stability:'🎨',runwayml:'🎞️',canva:'🎨',capcut:'✂️'}[n]||'🔌'; }
-
 async function toggleInteg(name, enabled) {
   await api('PATCH', '/admin/integrations/' + name, { enabled });
   showAlert('alert-global', name + (enabled ? ' enabled' : ' disabled'));
@@ -527,7 +695,7 @@ function openIntegModal(name, label) {
   document.getElementById('modal-integ-title').textContent = 'Configure — ' + label;
   const fields = INTEG_FIELDS[name] || [{k:'url',l:'URL',ph:'http://'},{k:'api_key',l:'API Key',ph:'',type:'password'}];
   document.getElementById('modal-integ-fields').innerHTML = fields.map(f => {
-    if (f.type === 'readonly') return `<div class="form-row full"><label>${f.l}</label><div style="color:var(--muted);font-size:12px;padding:8px 0">${f.ph}</div></div>`;
+    if (f.type === 'readonly') return `<div class="form-row full"><label>${f.l}</label><div style="color:var(--muted);font-size:12px;padding:8px 0;line-height:1.5">${f.ph}</div></div>`;
     if (f.type === 'textarea') return `<div class="form-row full"><label>${f.l}</label><textarea id="integ-${f.k.replace('.','_')}" placeholder="${f.ph}"></textarea></div>`;
     return `<div class="form-row full"><label>${f.l}</label><input type="${f.type||'text'}" id="integ-${f.k.replace('.','_')}" placeholder="${f.ph}"></div>`;
   }).join('');
@@ -569,13 +737,13 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 async function loadSshServers() {
   const servers = await api('GET', '/admin/ssh-servers').catch(() => []);
   const el = document.getElementById('ssh-list');
-  if (!servers.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px">No servers configured yet.</div>'; return; }
+  if (!servers.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:4px 0">No servers configured yet.</div>'; return; }
   el.innerHTML = `<table><thead><tr><th>Name</th><th>Host</th><th>User</th><th>Auth</th><th>Status</th><th></th></tr></thead><tbody>${
     servers.map(s => `<tr>
       <td><b>${s.name}</b></td><td><code>${s.host}:${s.port}</code></td><td>${s.username}</td>
       <td><span class="badge badge-blue">${s.auth_type}</span></td>
       <td>${s.enabled ? '<span class="badge badge-green"><span class="dot"></span> enabled</span>' : '<span class="badge badge-muted">disabled</span>'}</td>
-      <td><button class="btn btn-outline btn-sm" onclick="editSshServer('${s.id}')">Edit</button>
+      <td style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="editSshServer('${s.id}')">Edit</button>
           <button class="btn btn-outline btn-sm" onclick="deleteSshServer('${s.id}')">Delete</button></td>
     </tr>`).join('')
   }</tbody></table>`;
@@ -615,7 +783,7 @@ async function searchMemory() {
   const r = await api('GET', url).catch(() => ({ results: [] }));
   const el = document.getElementById('mem-results');
   if (!r.results.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px">No results.</div>'; return; }
-  el.innerHTML = r.results.map(m => `<div style="padding:10px 0;border-bottom:1px solid var(--border)"><span class="badge badge-blue">${m.category}</span> <span class="badge badge-muted">${(m.similarity*100).toFixed(0)}%</span> <span style="margin-left:8px;font-size:13px">${m.content}</span><div style="font-size:11px;color:var(--muted);margin-top:3px">${new Date(m.created_at).toLocaleString()}</div></div>`).join('');
+  el.innerHTML = r.results.map(m => `<div style="padding:10px 0;border-bottom:1px solid var(--border2)"><span class="badge badge-blue">${m.category}</span> <span class="badge badge-muted">${(m.similarity*100).toFixed(0)}%</span> <span style="margin-left:8px;font-size:13px">${m.content}</span><div style="font-size:11px;color:var(--muted);margin-top:3px">${new Date(m.created_at).toLocaleString()}</div></div>`).join('');
 }
 async function addMemory() {
   await api('POST', '/memory', { content: document.getElementById('mem-content').value, category: document.getElementById('mem-cat-new').value, importance: parseFloat(document.getElementById('mem-importance').value) });
@@ -627,13 +795,13 @@ async function addMemory() {
 async function loadSessions() {
   const r = await api('GET', '/sessions').catch(() => ({ sessions: [] }));
   const el = document.getElementById('sessions-list');
-  el.innerHTML = r.sessions.map(s => `<div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><code>${s}</code><button class="btn btn-outline btn-sm" onclick="loadSession('${s}')">View</button></div>`).join('');
+  el.innerHTML = r.sessions.map(s => `<div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center"><code>${s}</code><button class="btn btn-outline btn-sm" onclick="loadSession('${s}')">View</button></div>`).join('');
 }
 async function loadSession(id) {
   const r = await api('GET', '/sessions/' + id + '?limit=100');
   document.getElementById('session-detail-id').textContent = id;
   document.getElementById('session-detail-card').style.display = '';
-  document.getElementById('session-detail-msgs').innerHTML = r.messages.map(m => `<div style="padding:10px;margin:6px 0;border-radius:8px;background:${m.role==='user'?'var(--surface2)':'var(--bg)'}"><span class="badge ${m.role==='user'?'badge-blue':'badge-green'}">${m.role}</span> <span style="font-size:13px;margin-left:8px">${m.content||''}</span></div>`).join('');
+  document.getElementById('session-detail-msgs').innerHTML = r.messages.map(m => `<div style="padding:10px;margin:6px 0;border-radius:10px;background:${m.role==='user'?'var(--surface2)':'var(--bg)'}"><span class="badge ${m.role==='user'?'badge-blue':'badge-green'}">${m.role}</span> <span style="font-size:13px;margin-left:8px">${m.content||''}</span></div>`).join('');
   document.getElementById('session-detail-card').scrollIntoView({ behavior: 'smooth' });
 }
 
