@@ -6,7 +6,6 @@ volumes:
   postgres-data:
   redis-data:
   n8n-data:
-  open-webui-data:
   agent-videos:
 
 services:
@@ -120,25 +119,4 @@ services:
       - assistant-net
     depends_on:
       postgres:
-        condition: service_healthy
-
-  # ── Open WebUI ───────────────────────────────────────────────────────────────
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: assistant-open-webui
-    restart: unless-stopped
-    environment:
-      OPENAI_API_BASE_URL: http://agent-core:8000/v1
-      OPENAI_API_KEY: ${AGENT_SECRET_KEY}
-      WEBUI_AUTH: "false"
-      WEBUI_NAME: "Personal Assistant"
-      ENABLE_SIGNUP: "false"
-    ports:
-      - "3000:8080"
-    volumes:
-      - open-webui-data:/app/backend/data
-    networks:
-      - assistant-net
-    depends_on:
-      agent-core:
         condition: service_healthy

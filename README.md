@@ -8,7 +8,7 @@ Inspired by OpenHands/OpenDevin but built from scratch so you own every piece of
 
 ## What It Does
 
-- **Chat with your assistant** via a clean web UI (Open WebUI) or Telegram
+- **Chat with your assistant** via a custom built-in web UI or Telegram
 - **Manage your homelab** — monitor servers, update Docker containers, check for threats, manage Proxmox VMs
 - **Control your smart home** via Home Assistant
 - **Manage files** on Nextcloud
@@ -32,8 +32,8 @@ Inspired by OpenHands/OpenDevin but built from scratch so you own every piece of
 │                        Your Home Server                      │
 │                                                             │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
-│  │  Open WebUI  │    │   Telegram   │    │  Admin Panel │  │
-│  │  (port 3000) │    │   Bot (n8n)  │    │  (port 8000) │  │
+│  │   Chat UI    │    │   Telegram   │    │  Admin Panel │  │
+│  │  (port 8100) │    │   Bot (n8n)  │    │  (port 8100) │  │
 │  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘  │
 │         │                   │                   │           │
 │         └───────────────────┼───────────────────┘           │
@@ -41,7 +41,7 @@ Inspired by OpenHands/OpenDevin but built from scratch so you own every piece of
 │                    ┌────────▼────────┐                      │
 │                    │   Agent Core    │                      │
 │                    │  FastAPI/Python │                      │
-│                    │   (port 8000)   │                      │
+│                    │   (port 8100)   │                      │
 │                    └────────┬────────┘                      │
 │                             │                               │
 │        ┌────────────────────┼────────────────────┐         │
@@ -55,7 +55,7 @@ Inspired by OpenHands/OpenDevin but built from scratch so you own every piece of
 │  ┌─────────────────────────────────────────────────────┐   │
 │  │                    n8n                              │   │
 │  │  Gmail · Telegram Bot · Daily Briefing · Webhooks  │   │
-│  │                  (port 5678)                        │   │
+│  │                  (port 5679)                        │   │
 │  └─────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -66,12 +66,11 @@ Inspired by OpenHands/OpenDevin but built from scratch so you own every piece of
 
 | Service | Image | Port | Purpose |
 |---|---|---|---|
-| `agent-core` | Custom Python/FastAPI | 8000 | Main AI agent, REST API, tool execution |
+| `agent-core` | Custom Python/FastAPI | 8100 | Main AI agent, REST API, chat UI, tool execution |
 | `postgres` | pgvector/pgvector:pg16 | internal | Persistent memory, conversation history, configs |
 | `redis` | redis:7-alpine | internal | Job queue |
 | `playwright` | Custom Python | internal | Headless browser for web tools |
-| `n8n` | n8nio/n8n | 5678 | Workflow automation (Gmail, Telegram, cron) |
-| `open-webui` | ghcr.io/open-webui/open-webui | 3000 | Chat web interface |
+| `n8n` | n8nio/n8n | 5679 | Workflow automation (Gmail, Telegram, cron) |
 
 ---
 
@@ -159,10 +158,10 @@ bash setup.sh    # builds containers, starts stack, imports n8n workflows
 ### Access
 | Interface | URL |
 |---|---|
-| Chat (Open WebUI) | `http://your-server-ip:3000` |
-| Admin Panel | `http://your-server-ip:8000/admin` |
-| n8n Workflows | `http://your-server-ip:5678` |
-| Agent API | `http://your-server-ip:8000` |
+| Chat UI | `http://your-server-ip:8100` |
+| Admin Panel | `http://your-server-ip:8100/admin` |
+| n8n Workflows | `http://your-server-ip:5679` |
+| Agent API | `http://your-server-ip:8100` |
 
 ---
 
@@ -186,7 +185,7 @@ OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-Everything else (Home Assistant, Nextcloud, Plex, TrueNAS, SSH servers, YouTube, etc.) can be configured later from the admin panel at `http://your-server-ip:8000/admin`.
+Everything else (Home Assistant, Nextcloud, Plex, TrueNAS, SSH servers, YouTube, etc.) can be configured later from the admin panel at `http://your-server-ip:8100/admin`.
 
 ### Admin Panel
 
@@ -325,7 +324,7 @@ To set up Telegram: create a bot via [@BotFather](https://t.me/BotFather), add t
 
 ## Security Notes
 
-- The stack is designed for **LAN-only access** — do not expose ports 3000, 5678, or 8000 directly to the internet
+- The stack is designed for **LAN-only access** — do not expose ports 8100 or 5679 directly to the internet
 - All agent API endpoints are protected by `AGENT_SECRET_KEY`
 - SSH credentials are stored encrypted in Postgres and never returned in API responses
 - If you want remote access, put it behind a VPN (WireGuard/Tailscale) rather than a public reverse proxy

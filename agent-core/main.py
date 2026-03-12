@@ -56,6 +56,13 @@ def verify_key(authorization: Optional[str] = Header(None)):
     return token
 
 
+# ── Chat UI ────────────────────────────────────────────────────────────────────
+@app.get("/")
+async def chat_ui():
+    path = os.path.join(static_dir, "index.html")
+    return FileResponse(path)
+
+
 # ── Admin UI ───────────────────────────────────────────────────────────────────
 @app.get("/admin")
 async def admin_ui():
