@@ -449,28 +449,53 @@ async function deleteProvider(name) {
 let currentInteg = null;
 const INTEG_FIELDS = {
   home_assistant: [{k:'url',l:'URL',ph:'http://homeassistant.local:8123'},{k:'api_key',l:'Long-lived Access Token',ph:'eyJ...',type:'password'}],
-  proxmox: [{k:'url',l:'URL',ph:'https://proxmox.local:8006'},{k:'api_key',l:'API Token',ph:'user@pam!token=secret',type:'password'}],
-  truenas: [{k:'url',l:'URL',ph:'http://truenas.local'},{k:'api_key',l:'API Key',ph:'1-abc...',type:'password'}],
-  nextcloud: [{k:'url',l:'URL',ph:'https://cloud.local'},{k:'username',l:'Username',ph:'admin'},{k:'password',l:'Password',ph:'',type:'password'}],
-  plex: [{k:'url',l:'URL',ph:'http://plex.local:32400'},{k:'api_key',l:'Plex Token',ph:'xxx',type:'password'}],
-  jellyfin: [{k:'url',l:'URL',ph:'http://jellyfin.local:8096'},{k:'api_key',l:'API Key',ph:'abc123...',type:'password'},{k:'extra.user_id',l:'User ID',ph:'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'}],
-  gmail: [{k:'extra.note',l:'Note',ph:'Configure Gmail OAuth2 credentials in n8n, then enable here to activate the tool',type:'readonly'}],
-  telegram: [{k:'api_key',l:'Bot Token',ph:'123456:ABC...',type:'password'},{k:'extra.chat_id',l:'Your Chat ID (for notifications)',ph:'123456789'}],
-  youtube: [{k:'api_key',l:'YouTube Data API Key',ph:'AIza...',type:'password'},{k:'extra.channel_id',l:'Your Channel ID',ph:'UCxxxx'},{k:'extra.client_secret_json',l:'OAuth Client Secret JSON',type:'textarea'}],
-  elevenlabs: [{k:'api_key',l:'API Key',ph:'sk_...',type:'password'},{k:'extra.voice_id',l:'Default Voice ID',ph:'21m00Tcm4TlvDq8ikWAM'}],
-  stability: [{k:'api_key',l:'API Key',ph:'sk-...',type:'password'}],
-  runwayml: [{k:'api_key',l:'API Key',ph:'key_...',type:'password'}],
-  canva: [{k:'api_key',l:'API Key',ph:'OAuthToken...',type:'password'},{k:'extra.brand_kit_id',l:'Brand Kit ID (optional)',ph:'BAF...'}],
-  capcut: [{k:'extra.note',l:'Note',ph:'CapCut does not have a public API. Store your account email below for reference.',type:'readonly'},{k:'username',l:'Account Email',ph:'you@example.com'}],
+  proxmox:        [{k:'url',l:'URL',ph:'https://proxmox.local:8006'},{k:'api_key',l:'API Token',ph:'user@pam!token=secret',type:'password'}],
+  truenas:        [{k:'url',l:'URL',ph:'http://truenas.local'},{k:'api_key',l:'API Key',ph:'1-abc...',type:'password'}],
+  nextcloud:      [{k:'url',l:'URL',ph:'https://cloud.local'},{k:'username',l:'Username',ph:'admin'},{k:'password',l:'Password',ph:'',type:'password'}],
+  plex:           [{k:'url',l:'URL',ph:'http://plex.local:32400'},{k:'api_key',l:'Plex Token',ph:'xxx',type:'password'}],
+  jellyfin:       [{k:'url',l:'URL',ph:'http://jellyfin.local:8096'},{k:'api_key',l:'API Key',ph:'abc123...',type:'password'},{k:'extra.user_id',l:'User ID',ph:'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'}],
+  gmail:          [{k:'extra.note',l:'Note',ph:'Configure Gmail OAuth2 credentials in n8n, then enable here to activate the tool',type:'readonly'}],
+  telegram:       [{k:'api_key',l:'Bot Token',ph:'123456:ABC...',type:'password'},{k:'extra.chat_id',l:'Your Chat ID (for notifications)',ph:'123456789'}],
+  youtube:        [{k:'api_key',l:'YouTube Data API Key',ph:'AIza...',type:'password'},{k:'extra.channel_id',l:'Your Channel ID',ph:'UCxxxx'},{k:'extra.client_secret_json',l:'OAuth Client Secret JSON',type:'textarea'}],
+  elevenlabs:     [{k:'api_key',l:'API Key',ph:'sk_...',type:'password'},{k:'extra.voice_id',l:'Default Voice ID',ph:'21m00Tcm4TlvDq8ikWAM'}],
+  stability:      [{k:'api_key',l:'API Key',ph:'sk-...',type:'password'}],
+  runwayml:       [{k:'api_key',l:'API Key',ph:'key_...',type:'password'}],
+  canva:          [{k:'api_key',l:'API Key',ph:'OAuthToken...',type:'password'},{k:'extra.brand_kit_id',l:'Brand Kit ID (optional)',ph:'BAF...'}],
+  capcut:         [{k:'extra.note',l:'Note',ph:'CapCut does not have a public API. Store your account email below for reference.',type:'readonly'},{k:'username',l:'Account Email',ph:'you@example.com'}],
+};
+
+const INTEG_META = {
+  home_assistant: {category:'homelab', label:'Home Assistant'},
+  proxmox:        {category:'homelab', label:'Proxmox'},
+  truenas:        {category:'homelab', label:'TrueNAS'},
+  nextcloud:      {category:'storage', label:'Nextcloud'},
+  plex:           {category:'media',   label:'Plex'},
+  jellyfin:       {category:'media',   label:'Jellyfin'},
+  gmail:          {category:'comms',   label:'Gmail (n8n)'},
+  telegram:       {category:'comms',   label:'Telegram Bot'},
+  youtube:        {category:'content', label:'YouTube'},
+  elevenlabs:     {category:'content', label:'ElevenLabs TTS'},
+  stability:      {category:'content', label:'Stability AI'},
+  runwayml:       {category:'content', label:'Runway ML'},
+  canva:          {category:'content', label:'Canva'},
+  capcut:         {category:'content', label:'CapCut'},
 };
 
 async function loadIntegrations(category) {
-  const all = await api('GET', '/admin/integrations');
-  const filtered = all.filter(i => i.category === category);
   const el = document.getElementById('integrations-' + category);
-  if (!filtered.length) { el.innerHTML = '<div class="card" style="color:var(--muted);font-size:13px">No integrations in this category.</div>'; return; }
+  const dbRows = await api('GET', '/admin/integrations').catch(() => []);
+  const dbMap = {};
+  dbRows.forEach(r => dbMap[r.name] = r);
+  const names = Object.keys(INTEG_META).filter(n => INTEG_META[n].category === category);
+  const items = names.map(name => ({
+    name,
+    label: INTEG_META[name].label,
+    enabled: false,
+    url: '', last_test_ok: null,
+    ...(dbMap[name] || {}),
+  }));
   el.innerHTML = '<div class="card"><div id="integ-list-' + category + '"></div></div>';
-  renderIntegRows(category, filtered);
+  renderIntegRows(category, items);
 }
 
 function renderIntegRows(category, items) {

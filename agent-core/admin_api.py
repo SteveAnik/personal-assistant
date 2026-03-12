@@ -118,8 +118,30 @@ def make_router(database_url: str):
             return {"status": "nothing to update"}
         fields.append(f"updated_at=NOW()")
         vals.append(name)
+        meta = {
+            'home_assistant':'homelab','proxmox':'homelab','truenas':'homelab',
+            'nextcloud':'storage','plex':'media','jellyfin':'media',
+            'gmail':'comms','telegram':'comms','youtube':'content',
+            'elevenlabs':'content','stability':'content','runwayml':'content',
+            'canva':'content','capcut':'content',
+        }
+        labels = {
+            'home_assistant':'Home Assistant','proxmox':'Proxmox','truenas':'TrueNAS',
+            'nextcloud':'Nextcloud','plex':'Plex','jellyfin':'Jellyfin',
+            'gmail':'Gmail (n8n)','telegram':'Telegram Bot','youtube':'YouTube',
+            'elevenlabs':'ElevenLabs TTS','stability':'Stability AI','runwayml':'Runway ML',
+            'canva':'Canva','capcut':'CapCut',
+        }
         async with db.acquire() as conn:
-            await conn.execute(f"UPDATE integrations SET {', '.join(fields)} WHERE name=${i}", *vals)
+            exists = await conn.fetchval("SELECT 1 FROM integrations WHERE name=$1", name)
+            if exists:
+                await conn.execute(f"UPDATE integrations SET {', '.join(fields)} WHERE name=${i}", *vals)
+            else:
+                await conn.execute(
+                    "INSERT INTO integrations (name, category, label, enabled) VALUES ($1,$2,$3,FALSE)",
+                    name, meta.get(name, 'other'), labels.get(name, name)
+                )
+                await conn.execute(f"UPDATE integrations SET {', '.join(fields)} WHERE name=${i}", *vals)
         return {"status": "saved"}
 
     @r.post("/integrations/{name}/test")
